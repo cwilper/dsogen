@@ -1,0 +1,4 @@
+#!/bin/bash
+
+jar=$(dirname $0)/../../../target/dsogen.jar
+java -Djava.awt.headless=true -jar "$jar" "$@"
