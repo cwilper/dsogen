@@ -1,0 +1,23 @@
+#!/bin/bash
+
+#
+# Run this to prepare the results/main.dat file for plotting.
+#
+# BEFORE RUNNING THIS, you may wish to hand-edit main.dat:
+#
+#  A) To remove any lines before and after the time period of interest
+#  B) To fix any data anomolies caused by failed measurements. For example,
+#     occasionally the "old generation mb" measurement for Tomcat will fail,
+#     and the result in the results.dat file is empty. In these cases, you
+#     may want to interpolate the number from the previous and next row
+#     (take the average) and put it here, so the plot works properly.
+#
+# You can then run gnuplot space.plt -p or gnuplot num.plt -p
+# to view results.
+#
+
+#
+# Inserts 0, 1, 2, etc as first column of main.dat,
+# denoting how many minutes have elapsed since the test started
+#
+cat results/main.dat | awk '{print NR-1, $0}' > data.dat
