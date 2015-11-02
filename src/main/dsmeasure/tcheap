@@ -1,0 +1,9 @@
+#!/bin/bash
+
+tomcat_pid=$(jps | grep Bootstrap | awk '{ print $1 }')
+if [[ -z $tomcat_pid ]]; then
+  echo "Tomcat is not running"
+  exit 1
+fi
+
+$(dirname $0)/jheap $1 $tomcat_pid

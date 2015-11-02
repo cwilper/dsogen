@@ -1,0 +1,9 @@
+#!/bin/bash
+
+cli_pid=$(jps | grep ScriptLauncher | awk '{ print $1 }')
+if [[ -z $cli_pid ]]; then
+  echo "Not-Running"
+  exit 1
+fi
+
+$(dirname $0)/jheap $1 $cli_pid

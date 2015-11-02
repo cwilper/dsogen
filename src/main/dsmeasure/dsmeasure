@@ -1,0 +1,95 @@
+#!/bin/bash
+
+#
+# This script is designed to take various measurements at regular
+# intervals while Tomcat and the DSpace CLI are running.
+#
+# Output format (one line per measurement):
+# HH:MM:SS dspace-items solr-records solr-index-mb tomcat-oldgen-mb cli-oldgen-mb dspace-bistreams
+#
+# Example:
+# 10:44:15 2 2 0.1 112.2 Not-Running 8
+#
+# Translation:
+# This measurement was taken at 10:44 and 15 seconds, local time.
+# There were 2 items in DSpace, two items indexed in discovery,
+# the discovery index size on disk was 100kb, the Tomcat
+# process' old generation (retained heap size) was 112mb, the
+# DSpace CLI was not running, and there were 8 bitstreams in DSpace.
+#
+# To use it:
+#
+# 1) Put this script and the various *heap scripts somewhere, all
+#    in the same directory, e.g.: ~/dsmeasure
+# 2) Ensure that jheap works for you by first running 'jps' to list
+#    Java processes currently running on your machine, then running
+#    jheap process-id. If it doesn't work and you're in Linux, see the
+#    comments at the top of the jheap script to resolve the problem.
+# 3) Change the variables to suit your environment as noted below,
+#    and try running this script by itself once. It should create three
+#    .dat files in the output dir. The cli one will probably be missing
+#    some data because the java "ScriptLauncher" process (DSpace CLI) is
+#    not running.
+# 4) Set this script up in cron to run every minute. You can do this via:
+#    crontab -e
+#    Add the following line:
+#    * * * * * ~/dsmeasure/dsmeasure
+#
+
+
+#########################################
+# START OF ENVIRONMENT-SPECIFIC SETTINGS
+#########################################
+
+#
+# Set to your database name
+#
+DATABASE_NAME="dspace"
+
+#
+# Uncomment and set this as appropriate if the user you're running
+# this script as needs to enter a password when invoking psql.
+#
+# export PGPASSWORD=your_password
+
+#
+# Set this to the (existing) directory where measurements should be written
+#
+output_dir="$HOME/dsmeasure/results"
+
+#
+# Set JAVA_HOME as appropriate and make sure it's in your PATH
+#
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_40.jdk/Contents/Home
+#export JAVA_HOME=/opt/jdk1.8.0_66
+export PATH=$JAVA_HOME/bin:$PATH
+
+#
+# Set if non-default
+#
+SOLR_URL="http://localhost:8080/solr"
+
+#
+# Set to DSpace installation dir
+#
+DSPACE_INSTALL_DIR="$HOME/dspace"
+
+#######################################
+# END OF ENVIRONMENT-SPECIFIC SETTINGS
+#######################################
+
+now=$(date +%H:%M:%S)
+item_count=$(psql -d $DATABASE_NAME -c 'select count(*) from item' | head -3 | tail -1 | awk '{print $1}')
+bitstream_count=$(psql -d $DATABASE_NAME -c 'select count(*) from bitstream' | head -3 | tail -1 | awk '{print $1}')
+search_index_count=$(curl "$SOLR_URL/search/select?q=*:*&rows=0" 2> /dev/null | grep numFound | cut -f16 -d'"')
+search_index_mb=$(du -k $DSPACE_INSTALL_DIR/solr/search/data/index|tail -1|awk '{mb = $1 / 1024 ; printf("%0.1f", mb)}')
+
+heapinfo_tomcat=$($(dirname $0)/tcheap -gc)
+heapinfo_cli=$($(dirname $0)/cliheap -gc)
+
+oldgen_tomcat=$(echo $heapinfo_tomcat | awk '{print $1}')
+oldgen_cli=$(echo $heapinfo_cli | awk '{print $1}')
+
+echo "$now $item_count $search_index_count $search_index_mb $oldgen_tomcat $oldgen_cli $bitstream_count" >> $output_dir/main.dat
+#echo "$now $heapinfo_tomcat" >> $output_dir/tomcat.dat
+#echo "$now $heapinfo_cli" >> $output_dir/cli.dat

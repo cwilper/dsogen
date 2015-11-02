@@ -1,0 +1,52 @@
+#!/bin/bash
+
+#
+# Prints the number of MB in the Old Generation.
+#
+# Usage: jheap [-gc] process_id
+#
+# -gc will cause a GC to be triggered just before the measurement
+#
+# NOTE: If you're running in Linux, due to a ptrace bug, you might have to run the following
+# before this will work properly:
+#
+# echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
+#
+
+die() {
+  echo "$1"
+  exit 1
+}
+
+die_missing_id() {
+  die "Process id required (-h for help)"
+}
+
+if [[ -z $1 ]]; then
+  die_missing_id
+fi
+
+if [[ $1 == "-h" ]]; then
+  echo "Usage: jheap [-gc] process_id"
+  exit 0
+fi
+
+if [[ $1 == "-gc" ]]; then
+  if [[ -z $2 ]]; then
+    die_missing_id
+  fi
+  process_id=$2
+else
+  process_id=$1
+fi
+
+if [[ $(jps | grep "^$process_id " | wc -l | awk '{ print $1 }') != "1" ]]; then
+  die "No such Java process: $process_id"
+fi
+
+if [[ $1 == "-gc" ]]; then
+  jcmd $process_id GC.run > /dev/null 2>&1
+fi
+
+jmap -F -heap $process_id 2> /dev/null |grep -A2 "Old Generation"|tail -1|awk '{ mb = $3 / 1024 / 1024 ; printf("%.1f MB used by old generation\n" , mb) }'
+#jmap -F -histo $process_id|grep " [[:digit:]]\{7\}  \S"|awk '{ num = $2 ; mb = $3 / 1024 / 1024 ; class = $4 ; printf("%.1f MB used by %s instances of %s\n", mb, num, class) }'|sort -nr
