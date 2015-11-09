@@ -43,7 +43,7 @@ You can also just run ``java -jar target/dsogen.jar`` and not worry about puttin
                       If specified, this will be the primary bitstream if -pdf is not
                       specified.
 
-    At least one of -pdf or -txt must be specified, possibly both.
+    At least one of -pdf, -txt, or -bin must be specified, in any combination.
 
 ## Examples
 

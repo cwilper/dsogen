@@ -230,7 +230,7 @@ public final class DsoGen
             if (args.length > 0 && args[0].equals("-h")) {
                 printHelpAndExit("dsogen -out out-dir -num num-items -min min-pages -max max-pages -pdf -txt",
                         "Generates DSpace objects that can be imported for testing",
-                        options, "At least one of -pdf or -txt must be specified, possibly both.");
+                        options, "At least one of -pdf, -txt, or -bin must be specified, in any combination.");
             }
             CommandLine cmd = new DefaultParser().parse(options, args);
             final File outDir = new File(cmd.getOptionValue("out"));
@@ -282,7 +282,7 @@ public final class DsoGen
     private static Options getOptions() {
         final Options options = new Options();
         options.addOption(Option.builder("out").hasArg().required().desc("Output directory. It will be created if it doesn't exist yet.").build());
-        options.addOption(Option.builder("num").hasArg().desc("Number of items to generate for .txt and .pdf bitstreams. Default is 1.").build());
+        options.addOption(Option.builder("num").hasArg().desc("Number of items to generate. Default is 1.").build());
         options.addOption(Option.builder("minbytes").hasArg().desc("Minimum bytes for .bin bitstreams. Default is 1.").build());
         options.addOption(Option.builder("maxbytes").hasArg().desc("Maximum bytes for .bin bitstreams. Default is 1.").build());
         options.addOption(Option.builder("minpages").hasArg().desc("Minimum pages of text for .txt and .pdf bitstreams. Default is 1.").build());
