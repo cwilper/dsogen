@@ -35,8 +35,7 @@ You can also just run ``java -jar target/dsogen.jar`` and not worry about puttin
     -minbytes <arg>   Minimum bytes for .bin bitstreams. Default is 1.
     -minpages <arg>   Minimum pages of text for .txt and .pdf bitstreams.
                       Default is 1.
-    -num <arg>        Number of items to generate for .txt and .pdf bitstreams.
-                      Default is 1.
+    -num <arg>        Number of items to generate. Default is 1.
     -out <arg>        Output directory. It will be created if it doesn't exist yet.
     -pdf              Include a PDF bitstream for each item, in the ORIGINAL bundle.
                       If specified, this will be the primary bitstream.
