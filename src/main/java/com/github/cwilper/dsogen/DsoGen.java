@@ -19,17 +19,24 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 public final class DsoGen
 {
     private static final int LINES_PER_PAGE = 51;
 
     private static final byte[] FOUR_KB_OF_BYTES = new byte[4096];
+
+    private static final Date START_OF_EPOCH = new Date(0);
+
+    private static final Date NOW = new Date();
 
     private static final WordList words = WordList.fromStream(DsoGen.class.getResourceAsStream("words.txt"));
 
@@ -70,8 +77,14 @@ public final class DsoGen
                                      final boolean pdf, final boolean txt, final int binBitstreams,
                                      final int numBytes) throws Exception {
         final String title = randomTitlePhrase(4);
+        final String description = randomSentence(100, 106)
+            + " " + randomSentence(300, 306)
+            + " " + randomSentence(300, 306)
+            + " " + randomSentence(100, 106);
         final String author = authors.random();
-        final String subject = subjects.random();
+        final String subject1 = subjects.random();
+        final String subject2 = subjects.random();
+        final String subject3 = subjects.random();
 
         final List<String> lines = generateLines(title, author, numPages * LINES_PER_PAGE);
 
@@ -90,7 +103,7 @@ public final class DsoGen
         }
         writeText(new File(dir, "contents"), contents);
         writeText(new File(dir, "dublin_core.xml"),
-                getDcXml(id, title, author, subject, pdf ? "application/pdf" : (txt ? "text/plain" : "application/octet-stream")));
+                getDcXml(id, title, description, author, subject1, subject2, subject3));
     }
 
     private static void writeBinary(final File file, final int numBytes) throws Exception {
@@ -144,18 +157,30 @@ public final class DsoGen
         Files.write(file.toPath(), lines, StandardCharsets.UTF_8);
     }
 
-    private static List<String> getDcXml(final String id, final String title, final String author, final String subject, final String mimeType) {
+    private static List<String> getDcXml(final String id, final String title, final String description, final String author, final String subject1, final String subject2, final String subject3) {
         final List<String> xml = Lists.newArrayList();
         xml.add("<dublin_core>");
         final StringBuilder builder = new StringBuilder();
-        addDcValue(builder, id, "identifier");
         addDcValue(builder, title, "title");
+        addDcValue(builder, "text", "type");
+        addDcValue(builder, randomDay(), "date", "issued");
+        addDcValue(builder, description, "description", "abstract");
         addDcValue(builder, author, "contributor", "author");
-        addDcValue(builder, mimeType, "format", "mimetype");
-        addDcValue(builder, subject, "subject");
+        addDcValue(builder, subject1, "subject");
+        if (!subject2.equals(subject1)) {
+            addDcValue(builder, subject2, "subject");
+        }
+        if (!subject3.equals(subject1) && !subject3.equals(subject2)) {
+            addDcValue(builder, subject3, "subject");
+        }
         xml.add(builder.toString());
         xml.add("</dublin_core>");
         return xml;
+    }
+
+    private static String randomDay() {
+        long randomTime = ThreadLocalRandom.current().nextLong(START_OF_EPOCH.getTime(), NOW.getTime());
+        return new SimpleDateFormat("yyyy-MM-dd").format(new Date(randomTime));
     }
 
     private static String randomTitleCaseWord() {
@@ -194,24 +219,28 @@ public final class DsoGen
             if ((i + 1) % 5 == 0) {
                 lines.add("");
             } else {
-                StringBuilder builder = new StringBuilder();
-                while (builder.length() < 66) {
-                    final String word = words.random();
-                    if (builder.length() + word.length() <= 71) {
-                        if (builder.length() == 0) {
-                            builder.append(word.substring(0, 1).toUpperCase());
-                            builder.append(word.substring(1));
-                        } else {
-                            builder.append(" ");
-                            builder.append(word);
-                        }
-                    }
-                }
-                builder.append(".");
-                lines.add(builder.toString());
+                lines.add(randomSentence(66, 72));
             }
         }
         return lines;
+    }
+
+    private static String randomSentence(final int minLen, final int maxLen) {
+        StringBuilder builder = new StringBuilder();
+        while (builder.length() < minLen) {
+            final String word = words.random();
+            if (builder.length() + word.length() < maxLen) {
+                if (builder.length() == 0) {
+                    builder.append(word.substring(0, 1).toUpperCase());
+                    builder.append(word.substring(1));
+                } else {
+                    builder.append(" ");
+                    builder.append(word);
+                }
+            }
+        }
+        builder.append(".");
+        return builder.toString();
     }
 
     private static String center(final String input) {
