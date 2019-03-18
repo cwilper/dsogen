@@ -1,18 +1,19 @@
 #!/usr/bin/env bash
 
-alpha4=( Alfa Bravo Charlie Delta )
-alpha8=( Alfa Bravo Charlie Delta Echo Foxtrot Golf Hotel )
+sizes=( Tiny Small Medium Big )
+colors=( Black Blue Brown Green Orange Pink Red Yellow )
+things=( Bird Crayon Elephant Fish Grasshopper Light Lobster Sky )
 
 echo "<import_structure>"
-for i in "${alpha8[@]}"; do
+for i in "${colors[@]}"; do
   echo "  <community>"
-  echo "    <name>$i Community</name>"
-  for j in "${alpha8[@]}"; do
+  echo "    <name>$i</name>"
+  for j in "${things[@]}"; do
     echo "    <community>"
-    echo "      <name>$i $j Subcommunity</name>"
-    for k in "${alpha4[@]}"; do
+    echo "      <name>$i $j</name>"
+    for k in "${sizes[@]}"; do
       echo "      <collection>"
-      echo "        <name>$i $j $k Collection</name>"
+      echo "        <name>$k $i $j</name>"
       echo "      </collection>"
     done
     echo "    </community>"
