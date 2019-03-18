@@ -26,17 +26,17 @@ public class WordList extends ForwardingList<String>
 
     private final Iterator<Integer> randomInts;
 
-    public WordList(final Iterable<String> words) {
+    public WordList(final long seed, final Iterable<String> words) {
         checkNotNull(words);
         if (words instanceof Set) {
             delegate = initDelegate((Set<String>) words);
         } else {
             delegate = initDelegate(Sets.newHashSet(words));
         }
-        randomInts = new Random().ints(0, size()).iterator();
+        randomInts = new Random(seed).ints(0, size()).iterator();
     }
 
-    public static WordList fromStream(InputStream inputStream) {
+    public static WordList fromStream(final long seed, InputStream inputStream) {
         try {
             final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
             final List<String> words = Lists.newArrayList();
@@ -45,7 +45,7 @@ public class WordList extends ForwardingList<String>
                 words.add(line.trim());
                 line = reader.readLine();
             }
-            return new WordList(words);
+            return new WordList(seed, words);
         } catch (IOException e) {
             throw Throwables.propagate(e);
         } finally {

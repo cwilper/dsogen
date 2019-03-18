@@ -38,7 +38,7 @@ public final class DsoGen
 
     private static final Date NOW = new Date();
 
-    private static final WordList words = WordList.fromStream(DsoGen.class.getResourceAsStream("words.txt"));
+    private static final WordList words = WordList.fromStream(1, DsoGen.class.getResourceAsStream("words.txt"));
 
     private static final WordList authors = randomTitlePhrases(40, 2);
 
@@ -53,7 +53,7 @@ public final class DsoGen
         for (int i = 0; i < numItems; i++) {
             phrases.add(randomTitlePhrase(wordsPerItem));
         }
-        return new WordList(phrases);
+        return new WordList(2, phrases);
     }
 
     private static String randomTitlePhrase(int numWords) {
