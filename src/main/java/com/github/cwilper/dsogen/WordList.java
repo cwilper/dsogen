@@ -26,6 +26,7 @@ public class WordList extends ForwardingList<String>
 
     private final Iterator<Integer> randomInts;
 
+    // if seed is nonzero, construct deterministic "random" sequence using that seed, else use an entropy source
     public WordList(final long seed, final Iterable<String> words) {
         checkNotNull(words);
         if (words instanceof Set) {
@@ -33,7 +34,11 @@ public class WordList extends ForwardingList<String>
         } else {
             delegate = initDelegate(Sets.newHashSet(words));
         }
-        randomInts = new Random(seed).ints(0, size()).iterator();
+        if (seed == 0) {
+            randomInts = new Random().ints(0, size()).iterator();
+        } else {
+            randomInts = new Random(seed).ints(0, size()).iterator();
+        }
     }
 
     public static WordList fromStream(final long seed, InputStream inputStream) {

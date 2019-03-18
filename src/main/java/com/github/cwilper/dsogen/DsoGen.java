@@ -38,30 +38,32 @@ public final class DsoGen
 
     private static final Date NOW = new Date();
 
-    private static final WordList words = WordList.fromStream(1, DsoGen.class.getResourceAsStream("words.txt"));
+    private static final WordList words = WordList.fromStream(0, DsoGen.class.getResourceAsStream("words.txt"));
 
-    private static final WordList authors = randomTitlePhrases(40, 2);
+    private static final WordList deterministicWords = WordList.fromStream(1, DsoGen.class.getResourceAsStream("words.txt"));
 
-    private static final WordList subjects = randomTitlePhrases(20, 1);
+    private static final WordList authors = randomTitlePhrases(40, 2, deterministicWords);
+
+    private static final WordList subjects = randomTitlePhrases(20, 1, deterministicWords);
 
     static {
         Arrays.fill(FOUR_KB_OF_BYTES, (byte) 0x00);
     }
 
-    private static WordList randomTitlePhrases(int numItems, int wordsPerItem) {
+    private static WordList randomTitlePhrases(int numItems, int wordsPerItem, WordList source) {
         List<String> phrases = Lists.newArrayList();
         for (int i = 0; i < numItems; i++) {
-            phrases.add(randomTitlePhrase(wordsPerItem));
+            phrases.add(randomTitlePhrase(wordsPerItem, source));
         }
         return new WordList(2, phrases);
     }
 
-    private static String randomTitlePhrase(int numWords) {
+    private static String randomTitlePhrase(int numWords, WordList source) {
         final StringBuilder phrase = new StringBuilder();
         for (int j = 0; j < numWords; j++) {
             String word = null;
             while (word == null || word.length() < 4) {
-                word = randomTitleCaseWord();
+                word = randomTitleCaseWord(source);
             }
             if (phrase.length() > 0) {
                 phrase.append(" ");
@@ -76,7 +78,7 @@ public final class DsoGen
     private static void generateItem(final File dir, final String id, final int numPages,
                                      final boolean pdf, final boolean txt, final int binBitstreams,
                                      final int numBytes, final String titlePrefix) throws Exception {
-        final String title = titlePrefix + randomTitlePhrase(2);
+        final String title = titlePrefix + randomTitlePhrase(2, words);
         final String description = randomSentence(100, 106)
             + " " + randomSentence(300, 306)
             + " " + randomSentence(300, 306)
@@ -183,8 +185,8 @@ public final class DsoGen
         return new SimpleDateFormat("yyyy-MM-dd").format(new Date(randomTime));
     }
 
-    private static String randomTitleCaseWord() {
-        final String input = words.random();
+    private static String randomTitleCaseWord(WordList source) {
+        final String input = source.random();
         final StringBuilder titleCase = new StringBuilder();
         boolean nextTitleCase = true;
         for (char c : input.toCharArray()) {
