@@ -75,8 +75,8 @@ public final class DsoGen
 
     private static void generateItem(final File dir, final String id, final int numPages,
                                      final boolean pdf, final boolean txt, final int binBitstreams,
-                                     final int numBytes) throws Exception {
-        final String title = randomTitlePhrase(4);
+                                     final int numBytes, final String titlePrefix) throws Exception {
+        final String title = titlePrefix + randomTitlePhrase(2);
         final String description = randomSentence(100, 106)
             + " " + randomSentence(300, 306)
             + " " + randomSentence(300, 306)
@@ -257,7 +257,7 @@ public final class DsoGen
         final Options options = getOptions();
         try {
             if (args.length > 0 && args[0].equals("-h")) {
-                printHelpAndExit("dsogen -out out-dir -num num-items -min min-pages -max max-pages -pdf -txt",
+                printHelpAndExit("dsogen -out out-dir -num num-items -min min-pages -max max-pages -pdf -txt -pfx titleprefix",
                         "Generates DSpace objects that can be imported for testing",
                         options, "At least one of -pdf, -txt, or -bin must be specified, in any combination.");
             }
@@ -274,6 +274,7 @@ public final class DsoGen
             final boolean txt = cmd.hasOption("txt");
             final int binBitstreams = cmd.hasOption("bin") ? getPositiveIntOptionValue(cmd, "bin") : 0;
             Preconditions.checkArgument(pdf || txt || binBitstreams > 0, "Must specify -pdf, -txt, -bin, or any combination");
+            String titlePrefix = cmd.hasOption("pfx") ? cmd.getOptionValue("pfx") : "";
 
             final Iterator<Integer> numPagesInts = new Random().ints(minPages, maxPages + 1).iterator();
             final Iterator<Integer> numBytesInts = new Random().ints(minBytes, maxBytes + 1).iterator();
@@ -283,7 +284,7 @@ public final class DsoGen
                 final String id = UUID.randomUUID().toString();
                 final File dir = new File(outDir, id);
                 Preconditions.checkState(dir.mkdirs(), "Unable to create directory: " + dir);
-                generateItem(dir, id, numPagesInts.next(), pdf, txt, binBitstreams, numBytesInts.next());
+                generateItem(dir, id, numPagesInts.next(), pdf, txt, binBitstreams, numBytesInts.next(), titlePrefix);
             }
             System.out.println("Done.");
         } catch (Exception e) {
