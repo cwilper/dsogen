@@ -319,7 +319,8 @@ public final class DsoGen
         options.addOption(Option.builder("maxpages").hasArg().desc("Maximum pages of text for .txt and .pdf bitstreams. Default is 1.").build());
         options.addOption(Option.builder("pdf").desc("Include a PDF bitstream for each item, in the ORIGINAL bundle. If specified, this will be the primary bitstream.").build());
         options.addOption(Option.builder("txt").desc("Include a plaintext bitstream for each item, in the TEXT bundle. If specified, this will be the primary bitstream if -pdf is not specified.").build());
-        options.addOption(Option.builder("bin").hasArg().desc("Include the given number of binary bitstreams for each item, in the ORIGINAL bundle. If unspecified, none will be added.").build());
+        options.addOption(Option.builder("bin").hasArg().desc("Include the given number of binary bitstreams for each item, in the OTHER bundle. If unspecified, none will be added.").build());
+        options.addOption(Option.builder("pfx").hasArg().desc("Title prefix to use, no prefix if unspecified").build());
         options.addOption(Option.builder("h").desc("Show help").build());
         return options;
     }
