@@ -28,7 +28,7 @@ You can also just run ``java -jar target/dsogen.jar`` and not worry about puttin
     Options:
 
     -bin <arg>        Include the given number of binary bitstreams for each item,
-                      in the ORIGINAL bundle. If unspecified, none will be added.
+                      in the OTHER bundle. If unspecified, none will be added.
     -maxbytes <arg>   Maximum bytes for .bin bitstreams. Default is 1.
     -maxpages <arg>   Maximum pages of text for .txt and .pdf bitstreams.
                       Default is 1.

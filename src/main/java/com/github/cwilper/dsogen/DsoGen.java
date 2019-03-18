@@ -90,16 +90,16 @@ public final class DsoGen
 
         final List<String> contents = Lists.newArrayList();
         if (pdf) {
-            writePdf(new File(dir, "file.pdf"), lines);
-            contents.add("file.pdf\tprimary:true");
+            writePdf(new File(dir, "text.pdf"), lines);
+            contents.add("text.pdf\tprimary:true");
         }
         if (txt) {
-            writeText(new File(dir, "file.txt"), lines);
-            contents.add("file.txt\tbundle:TEXT" + (pdf ? "" : "\tprimary:true"));
+            writeText(new File(dir, "text.txt"), lines);
+            contents.add("text.txt\tbundle:TEXT" + (pdf ? "" : "\tprimary:true"));
         }
         for (int i = 1; i < binBitstreams + 1; i++) {
-            writeBinary(new File(dir, "file" + i + ".bin"), numBytes);
-            contents.add("file" + i + ".bin");
+            writeBinary(new File(dir, "otherfile" + i + ".bin"), numBytes);
+            contents.add("otherfile" + i + ".bin\tbundle:OTHER");
         }
         writeText(new File(dir, "contents"), contents);
         writeText(new File(dir, "dublin_core.xml"),
